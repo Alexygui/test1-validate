@@ -1,25 +1,64 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="utf-8" />
 		<title>login-validate</title>
-		<script type="text/javascript" src="js/jquery.js" ></script>
+		<script type="text/javascript" src="js/jquery.js"></script>
 		<script>
-			
+			$(function() {
+				//必填项后加星号
+				$('form :input.required').each(function() {
+					$(this).parent().append("<strong>*</strong>");
+				})
+
+				//input失去焦点时
+				$('form :input').blur(function() {
+					var $parent = $(this).parent();
+					$parent.find('.information').remove();
+					//用户名不能为空
+					if($(this).is('#username')) {
+						if(this.value == "") {
+							$parent.append("<span class='information'>用户名不能为空</span>");
+						} else {
+							$parent.append("<span class='information'>OK</span>");
+						}
+					}
+
+
+
+				}).keyup(function(){
+					$(this).triggerHandler('blur');
+				}).focus(function() {
+					$(this).triggerHandler('blur');
+				});
+
+			});
 		</script>
 	</head>
+
 	<body>
 		<form action="" method="post">
-			<label>&nbsp;&nbsp;&nbsp;用户名：</label><input id="username" type="text" /><br />
-			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;密码：</label><input id="password" type="password" /><br />
-			<label>密码确认：</label><input id="passwordVerify" type="text" /><br />
-			<labe>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;邮箱：</label><input id="email" type="text" /><br />
-			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年龄：</label><input id="age" type="text" /><br />
-			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;性别：</label><input type="radio" checked="checked" value="男"/>男<input type="radio" value="女"/>女<br />
+			<div>
+				<label>&nbsp;&nbsp;&nbsp;用户名：</label><input id="username" type="text" class="required" />
+			</div><br />
+			<div>
+				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;密码：</label><input id="password" type="password" class="required" />
+			</div><br />
+			<div>
+				<label>密码确认：</label><input id="passwordVerify" type="text" class="required" />
+			</div><br />
+			<div>
+				<labe>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;邮箱：</label><input id="email" type="text" />
+			</div><br />
+			<div>
+				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年龄：</label><input id="age" type="text" /><br />
+			</div>
+			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;性别：</label><input type="radio" checked="checked" value="男" />男<input type="radio" value="女" />女<br /><br />
 			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;爱好：</label>
-			<input type="checkbox" name="hobby"/>打球
-			<input type="checkbox" name="hobby"/>打游戏
-			<input type="checkbox" name="hobby"/>打豆豆<br />
+			<input type="checkbox" name="hobby" />打球
+			<input type="checkbox" name="hobby" />打游戏
+			<input type="checkbox" name="hobby" />打豆豆<br /><br />
 			<label>城市：</label>
 			<select>
 				<option>北京</option>
@@ -30,9 +69,10 @@
 				<option>无为</option>
 				<option>二坝</option>
 			</select>
-				<br />
-				<input type="submit" value="提交"/>
-				<input type="reset" value="重置"/>
+			<br /><br />
+			<input type="submit" value="提交" />
+			<input type="reset" value="重置" />
 		</form>
 	</body>
+
 </html>
