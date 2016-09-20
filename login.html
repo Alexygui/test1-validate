@@ -12,25 +12,110 @@
 					$(this).parent().append("<strong>*</strong>");
 				})
 
-				//input失去焦点时
+				//input失去焦点时的事件
 				$('form :input').blur(function() {
 					var $parent = $(this).parent();
 					$parent.find('.information').remove();
+					
 					//用户名不能为空
 					if($(this).is('#username')) {
 						if(this.value == "") {
-							$parent.append("<span class='information'>用户名不能为空</span>");
+							$parent.append("<span class='information onError'>用户名不能为空</span>");
 						} else {
-							$parent.append("<span class='information'>OK</span>");
+							$parent.append("<span class='information onOK'>OK</span>");
 						}
 					}
 
+					//密码不能为空或小于6位
+					if($(this).is('#password')) {
+						$('#username').blur();
+						if(this.value == "" || this.value.length < 6) {
+							$parent.append("<span class='information onError'>密码不能小于6位数</span>");
+							$('#passwordVerify').attr('disabled',true);
+						} else {
+							$parent.append("<span class='information onOK'>OK</span>");
+							if($('#username').val() != "") {
+								$('#passwordVerify').attr('disabled', false);
+							}
+						}
+					}
 
+					//密码确认是否与密码相同
+					if($(this).is('#passwordVerify')) {
+						
+						if(this.value != $('#password').val()) {
+							$parent.append("<span class='information onError'>两次密码输入不一致</span>");
+							$('input:submit').attr('disabled', true);
+						} else {
+							$parent.append("<span class='information onOK'>OK</span>");
+							$('input:submit').attr('disabled', false);
+						}
+					}
 
-				}).keyup(function(){
+					//邮箱格式验证
+					if($(this).is('#email')) {
+						if(this.value == "" || !/\w+@.+\.[a-zA-Z]{2,4}$/.test(this.value)) {
+							$parent.append("<span class='information onError'>请输入正确的邮箱格式</span>");
+						} else {
+							$parent.append("<span class='information onOK'>OK</span>");
+						}
+					}
+
+					//年龄验证
+					if($(this).is('#age')) {
+						if(this.value == '' || !/^\d{1,2}$/.test(this.value)) {
+							$parent.append("<span class='information onError'>请输入小于100的数字</span>");
+						} else {
+							$parent.append("<span class='information onOK'>OK</span>");
+						}
+					}
+
+					
+
+				}).keyup(function() {
 					$(this).triggerHandler('blur');
 				}).focus(function() {
 					$(this).triggerHandler('blur');
+				});
+				
+				//性别
+				$('form :radio').click(function(){
+					$(this).attr('checked',true)
+							.siblings().attr('checked',false);
+				});
+
+				//提交打印信息
+				$('#submit').click(function() {
+					$('form :input.required').blur();
+					var $errorNum = $('form .onError').length;
+					if($errorNum){
+						return false;
+					} else {
+						$('#submit').attr('disabled',true);
+						$('#reset').attr('disabled',true);
+						var str = "";
+						var $hoby = $('form :checkbox');
+						var hobyContent = "";
+						for(var i=0; i<$hoby.length; i++) {
+							if($hoby[i].checked){
+								hobyContent += $hoby[i].value + "&nbsp;&nbsp;&nbsp;&nbsp;";
+							}
+						}
+						str += '用户名：'+$('#username').val()+"<br/>"+
+								'邮箱：'+$('#email').val()+"<br/>"+
+								'年龄：'+$('#age').val()+"<br/>"+
+								'性别：'+$('form :radio:checked').val()+"<br/>"+
+								'爱好：'+ hobyContent +"<br/>"+
+								'城市：'+$('#city').val() +"<br/>";
+								
+						$('#outputInformation').append("<span>"+ str +"</span>")
+					}
+					return false;
+				});
+
+				//重置按钮
+				$('#reset').click(function() {
+					$('.information').remove();
 				});
 
 			});
@@ -46,21 +131,21 @@
 				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;密码：</label><input id="password" type="password" class="required" />
 			</div><br />
 			<div>
-				<label>密码确认：</label><input id="passwordVerify" type="text" class="required" />
+				<label>密码确认：</label><input id="passwordVerify" type="password" class="required" disabled="disabled" />
 			</div><br />
 			<div>
-				<labe>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;邮箱：</label><input id="email" type="text" />
+				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;邮箱：</label><input id="email" type="text" class="required"/>
 			</div><br />
 			<div>
-				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年龄：</label><input id="age" type="text" /><br />
-			</div>
+				<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年龄：</label><input id="age" type="text" class="required"/>
+			</div><br />
 			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;性别：</label><input type="radio" checked="checked" value="男" />男<input type="radio" value="女" />女<br /><br />
 			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;爱好：</label>
-			<input type="checkbox" name="hobby" />打球
-			<input type="checkbox" name="hobby" />打游戏
-			<input type="checkbox" name="hobby" />打豆豆<br /><br />
+			<input type="checkbox" name="hobby" value="打球"/>打球
+			<input type="checkbox" name="hobby" value="打游戏"/>打游戏
+			<input type="checkbox" name="hobby" value="打豆豆"/>打豆豆<br /><br />
 			<label>城市：</label>
-			<select>
+			<select id="city">
 				<option>北京</option>
 				<option>上海</option>
 				<option>广州</option>
@@ -70,9 +155,10 @@
 				<option>二坝</option>
 			</select>
 			<br /><br />
-			<input type="submit" value="提交" />
-			<input type="reset" value="重置" />
+			<input type="submit" id="submit" value="提交" disabled="disabled" />
+			<input type="reset" id="reset" value="重置" />
 		</form>
+		<div id="outputInformation"></div>
 	</body>
 
 </html>
